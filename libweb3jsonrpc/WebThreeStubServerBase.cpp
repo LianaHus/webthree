@@ -578,7 +578,19 @@ Json::Value WebThreeStubServerBase::eth_compileSolidity(string const& _source)
 	try
 	{
 		compiler.addSource("source", _source);
-		compiler.compile();
+		auto successful = compiler.compile();
+
+		//check for errors, return Json object with error information, if any
+		if (!successful)
+		{
+			for (auto const& error: compiler.errors())
+				solidity::SourceReferenceFormatter::printExceptionInformation(
+					cerr,
+					*error,
+					"solc " + ((error->type() == Error::Type::Warning) ? "warning" : "error", *m_compiler)
+				);
+			return Json::Value(Json::objectValue);
+		}
 
 		for (string const& name: compiler.getContractNames())
 		{

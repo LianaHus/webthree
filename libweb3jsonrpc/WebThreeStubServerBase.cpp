@@ -499,6 +499,29 @@ string WebThreeStubServerBase::eth_compileSerpent(string const& _source)
 	return res;
 }
 
+string WebThreeStubServerBase::eth_compileSerpent(string const& _source)
+{
+	// TODO throw here jsonrpc errors
+	string res;
+#if ETH_ || !ETH_TRUE
+	try
+	{
+		res = toJS(dev::asBytes(::compile(_source)));
+	}
+	catch (string err)
+	{
+		cwarn << "Serpent compilation error: " << err;
+	}
+	catch (...)
+	{
+		cwarn << "Uncought serpent compilation exception";
+	}
+#else
+	(void)_source;
+#endif
+	return res;
+}
+
 #define ADMIN requires(_session, Privilege::Admin)
 
 bool WebThreeStubServerBase::admin_setVerbosity(int _v, string const& _session)
